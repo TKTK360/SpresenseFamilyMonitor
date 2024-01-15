@@ -1,0 +1,3 @@
+IMG_SCHOOL.bmp	150x95
+IMG_WALK.bmp	150x132
+ImgHome.bmp	150x137
