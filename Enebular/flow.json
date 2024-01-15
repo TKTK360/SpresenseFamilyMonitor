@@ -1,0 +1,983 @@
+[
+  {
+    "id": "21aa420c3286a26f",
+    "type": "tab",
+    "label": "MAP",
+    "disabled": false,
+    "info": "",
+    "env": []
+  },
+  {
+    "id": "DBIDXXXXXXXXXXXX",
+    "type": "datastore-config",
+    "name": "datastore-config",
+    "tableIdType": "str",
+    "tableIdConstValue": ""
+  },
+  {
+    "id": "d0f00ead82a393b3",
+    "type": "template",
+    "z": "21aa420c3286a26f",
+    "name": "HTML 出力",
+    "field": "payload",
+    "fieldType": "msg",
+    "format": "handlebars",
+    "syntax": "mustache",
+    "template": "<html>\n<head>\n<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.3/dist/leaflet.css\"\n    integrity=\"sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=\"\n    crossorigin=\"\"/>\n<script src=\"https://unpkg.com/leaflet@1.9.3/dist/leaflet.js\"\n    integrity=\"sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=\"\n    crossorigin=\"\"></script>\n<style>\n html{ width: 100%; height: 100%;}\n body{ width: 100%; height: 100%; margin: 0;}\n #map{ width: 100%; height: 100%;}\n .leaflet-marker-icon-color-blue   {filter: hue-rotate(30deg);}\n .leaflet-marker-icon-color-red    {filter: hue-rotate(150deg);}\n .leaflet-marker-icon-color-yellow {filter: hue-rotate(210deg);}\n .leaflet-marker-icon-color-green  {filter: hue-rotate(270deg);}\n</style>\n</head>\n<body>\n<div id=\"map\"></div>\n<script>\n\n// マップ初期位置[現在]\nlet map = L.map('map', {\n  center: [\n        {{mapSetting.markerLocationLat}},\n        {{mapSetting.markerLocationLong}}\n    ],\n  zoom: 17,\n});\n\nL.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {\n    maxZoom: 19,\n    attribution: '&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>'\n}).addTo(map);\n\n\n// マーカ自宅\nlet markerS = L.marker(\n    [\n\t{{mapSetting.startLocationLat}},\n\t{{mapSetting.startLocationLong}}\n    ]\n).addTo(map);\nmarkerS.bindPopup(\"自宅\");\n\n// マーカ行先\nlet markerE = L.marker(\n    [\n\t{{mapSetting.endLocationLat}},\n\t{{mapSetting.endLocationLong}}\n    ]\n).addTo(map);\nmarkerE.bindPopup(\"片山小学校\");\n\n// マーカ現在\nlet markerN = L.marker(\n    [\n        {{mapSetting.markerLocationLat}},\n        {{mapSetting.markerLocationLong}}\n    ]\n).addTo(map);\nmarkerN.bindPopup(\"{{{time-jp}}}\").openPopup();\nL.DomUtil.addClass(markerN.getElement(), 'leaflet-marker-icon-color-red');\n\n</script>\n</body>\n</html>\n",
+    "output": "str",
+    "x": 850,
+    "y": 420,
+    "wires": [
+      [
+        "b89c0de38b786890",
+        "097f33bd74ea0813"
+      ]
+    ]
+  },
+  {
+    "id": "30779ebac48595e0",
+    "type": "change",
+    "z": "21aa420c3286a26f",
+    "name": "マップ設定",
+    "rules": [
+      {
+        "t": "set",
+        "p": "mapSetting",
+        "pt": "msg",
+        "to": "{}",
+        "tot": "json"
+      },
+      {
+        "t": "set",
+        "p": "mapSetting.startLocationLat",
+        "pt": "msg",
+        "to": "34.XXXXXXXXXXXXXX",
+        "tot": "num"
+      },
+      {
+        "t": "set",
+        "p": "mapSetting.startLocationLong",
+        "pt": "msg",
+        "to": "135.XXXXXXXXXXXXXX",
+        "tot": "num"
+      },
+      {
+        "t": "set",
+        "p": "mapSetting.endLocationLat",
+        "pt": "msg",
+        "to": "34.XXXXXXXXXXXXXX",
+        "tot": "str"
+      },
+      {
+        "t": "set",
+        "p": "mapSetting.endLocationLong",
+        "pt": "msg",
+        "to": "135.51918051519866",
+        "tot": "str"
+      },
+      {
+        "t": "set",
+        "p": "mapSetting.markerMessage",
+        "pt": "msg",
+        "to": "msg.payload.time",
+        "tot": "jsonata"
+      },
+      {
+        "t": "set",
+        "p": "mapSetting.markerLocationLong",
+        "pt": "msg",
+        "to": "msg.payload.lot",
+        "tot": "jsonata"
+      },
+      {
+        "t": "set",
+        "p": "mapSetting.markerLocationLat",
+        "pt": "msg",
+        "to": "msg.payload.lat",
+        "tot": "jsonata",
+        "dc": true
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 850,
+    "y": 340,
+    "wires": [
+      [
+        "cf65b95a0dd6452b"
+      ]
+    ]
+  },
+  {
+    "id": "097f33bd74ea0813",
+    "type": "LCDP-out",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "x": 1010,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "70c7eb0791c37a3f",
+    "type": "LCDP-in",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "x": 90,
+    "y": 100,
+    "wires": [
+      [
+        "3e910caf60aa2304"
+      ]
+    ]
+  },
+  {
+    "id": "5064485777455669",
+    "type": "switch",
+    "z": "21aa420c3286a26f",
+    "name": "パス分岐",
+    "property": "req.url",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "\"/\" & BasePath & \"/map\"",
+        "vt": "jsonata"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 200,
+    "y": 260,
+    "wires": [
+      [
+        "bd13d1c54b5a51c7",
+        "0513112887e793af"
+      ],
+      [
+        "e9dd750dd91a670d",
+        "7e2b4c2fe82811b7"
+      ]
+    ]
+  },
+  {
+    "id": "3e910caf60aa2304",
+    "type": "change",
+    "z": "21aa420c3286a26f",
+    "name": "実行環境のパス名取得",
+    "rules": [
+      {
+        "t": "set",
+        "p": "BasePath",
+        "pt": "msg",
+        "to": "$split(req.url, \"/\")[1]",
+        "tot": "jsonata"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 140,
+    "y": 180,
+    "wires": [
+      [
+        "5064485777455669"
+      ]
+    ]
+  },
+  {
+    "id": "e9dd750dd91a670d",
+    "type": "change",
+    "z": "21aa420c3286a26f",
+    "name": "LCDP 設定",
+    "rules": [
+      {
+        "t": "set",
+        "p": "ReturnURL",
+        "pt": "msg",
+        "to": "\"/\" & BasePath & \"/\"",
+        "tot": "jsonata"
+      },
+      {
+        "t": "set",
+        "p": "headers.Content-Type",
+        "pt": "msg",
+        "to": "text/html; charset=UTF-8",
+        "tot": "str"
+      },
+      {
+        "t": "set",
+        "p": "time",
+        "pt": "msg",
+        "to": "",
+        "tot": "date"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 370,
+    "y": 160,
+    "wires": [
+      [
+        "34bcca1da3770acc"
+      ]
+    ]
+  },
+  {
+    "id": "f5476d3a389064bd",
+    "type": "comment",
+    "z": "21aa420c3286a26f",
+    "name": "OpenStreetMap",
+    "info": "",
+    "x": 380,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "90ad840c216cbb15",
+    "type": "inject",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "tableId",
+        "v": "7d52eadb-6f88-43ee-9dbd-d7694501d7ed",
+        "vt": "str"
+      },
+      {
+        "p": "lat",
+        "v": "34.XXXXXXXXXXXXXX",
+        "vt": "num"
+      },
+      {
+        "p": "lot",
+        "v": "135.XXXXXXXXXXXXXX",
+        "vt": "num"
+      },
+      {
+        "p": "name",
+        "v": "sensorA",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 140,
+    "y": 600,
+    "wires": [
+      [
+        "2d44b0fcde385424"
+      ]
+    ]
+  },
+  {
+    "id": "ba5d01b18b95e372",
+    "type": "debug",
+    "z": "21aa420c3286a26f",
+    "name": "debug 1",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 660,
+    "y": 600,
+    "wires": []
+  },
+  {
+    "id": "2d44b0fcde385424",
+    "type": "template",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "field": "payload",
+    "fieldType": "msg",
+    "format": "handlebars",
+    "syntax": "mustache",
+    "template": "{\n    \"label\": \"{{name}}\",\n    \"ts\": 1,\n    \"time\": {{payload}},\n    \"lat\": \"{{lat}}\",\n    \"lot\": \"{{lot}}\"\n}\n",
+    "output": "json",
+    "x": 320,
+    "y": 600,
+    "wires": [
+      [
+        "cda9437c853bf40c"
+      ]
+    ]
+  },
+  {
+    "id": "cda9437c853bf40c",
+    "type": "ds-put-item",
+    "z": "21aa420c3286a26f",
+    "name": "gps-save",
+    "inParams_tableIdType": "msg",
+    "inParams_puttingItem": "payload",
+    "inParams_puttingItemType": "msg",
+    "inParams_puttingItemConstValue": "payload",
+    "outParams1_destOfputItemType": "msg",
+    "outParams1_destOfputItemConstValue": "payload",
+    "datastoreConfig": "DBIDXXXXXXXXXXXX",
+    "x": 480,
+    "y": 600,
+    "wires": [
+      [
+        "ba5d01b18b95e372"
+      ]
+    ]
+  },
+  {
+    "id": "16341bc5da16d8ca",
+    "type": "ds-delete-item",
+    "z": "21aa420c3286a26f",
+    "name": "gps-delete",
+    "inParams_tableIdType": "msg",
+    "inParams_key": "payload",
+    "inParams_keyType": "msg",
+    "inParams_keyConstValue": "payload",
+    "outParams1_destOfKeyOfDeletedDataType": "msg",
+    "outParams1_destOfKeyOfDeletedDataConstValue": "payload",
+    "datastoreConfig": "DBIDXXXXXXXXXXXX",
+    "x": 490,
+    "y": 660,
+    "wires": [
+      [
+        "3a3948b785328ee6"
+      ]
+    ]
+  },
+  {
+    "id": "201c1d8d8de6ee88",
+    "type": "inject",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "tableId",
+        "v": "7d52eadb-6f88-43ee-9dbd-d7694501d7ed",
+        "vt": "str"
+      },
+      {
+        "p": "name",
+        "v": "sensorA",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 140,
+    "y": 660,
+    "wires": [
+      [
+        "5a424a6bdf1da6eb"
+      ]
+    ]
+  },
+  {
+    "id": "5a424a6bdf1da6eb",
+    "type": "template",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "field": "payload",
+    "fieldType": "msg",
+    "format": "handlebars",
+    "syntax": "mustache",
+    "template": "{\n    \"label\": \"{{name}}\",\n    \"ts\": 1\n}\n",
+    "output": "json",
+    "x": 320,
+    "y": 660,
+    "wires": [
+      [
+        "16341bc5da16d8ca"
+      ]
+    ]
+  },
+  {
+    "id": "3a3948b785328ee6",
+    "type": "debug",
+    "z": "21aa420c3286a26f",
+    "name": "debug 2",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 680,
+    "y": 660,
+    "wires": []
+  },
+  {
+    "id": "676766547c1d347a",
+    "type": "inject",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "tableId",
+        "v": "7d52eadb-6f88-43ee-9dbd-d7694501d7ed",
+        "vt": "str"
+      },
+      {
+        "p": "name",
+        "v": "sensorA",
+        "vt": "str"
+      },
+      {
+        "p": "index",
+        "v": "1",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 140,
+    "y": 720,
+    "wires": [
+      [
+        "7c91c0c5da08870b"
+      ]
+    ]
+  },
+  {
+    "id": "7c91c0c5da08870b",
+    "type": "template",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "field": "payload",
+    "fieldType": "msg",
+    "format": "handlebars",
+    "syntax": "mustache",
+    "template": "{\n    \"label\": \"{{name}}\",\n    \"ts\": 1\n}\n",
+    "output": "json",
+    "x": 320,
+    "y": 720,
+    "wires": [
+      [
+        "1be51e7f7b35e796"
+      ]
+    ]
+  },
+  {
+    "id": "3bc3574022c62d35",
+    "type": "debug",
+    "z": "21aa420c3286a26f",
+    "name": "debug 3",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 680,
+    "y": 720,
+    "wires": []
+  },
+  {
+    "id": "1be51e7f7b35e796",
+    "type": "ds-get-item",
+    "z": "21aa420c3286a26f",
+    "name": "gps-get",
+    "inParams_tableIdType": "msg",
+    "inParams_key": "payload",
+    "inParams_keyType": "msg",
+    "inParams_keyConstValue": "payload",
+    "outParams1_destOfgottenItemType": "msg",
+    "outParams1_destOfgottenItemConstValue": "payload",
+    "datastoreConfig": "DBIDXXXXXXXXXXXX",
+    "x": 480,
+    "y": 720,
+    "wires": [
+      [
+        "3bc3574022c62d35"
+      ]
+    ]
+  },
+  {
+    "id": "02741ba56f1f5b6c",
+    "type": "LCDP-out",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "x": 1090,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "ba9c4a8df5c26594",
+    "type": "ds-put-item",
+    "z": "21aa420c3286a26f",
+    "name": "gps-save",
+    "inParams_tableIdType": "msg",
+    "inParams_puttingItem": "payload",
+    "inParams_puttingItemType": "msg",
+    "inParams_puttingItemConstValue": "payload",
+    "outParams1_destOfputItemType": "msg",
+    "outParams1_destOfputItemConstValue": "payload",
+    "datastoreConfig": "DBIDXXXXXXXXXXXX",
+    "x": 940,
+    "y": 120,
+    "wires": [
+      [
+        "02741ba56f1f5b6c",
+        "ffe9d32e9556a7c8"
+      ]
+    ]
+  },
+  {
+    "id": "7edcf74568686f0a",
+    "type": "comment",
+    "z": "21aa420c3286a26f",
+    "name": "GPS SAVE",
+    "info": "",
+    "x": 360,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "69e47b0485745072",
+    "type": "ds-get-item",
+    "z": "21aa420c3286a26f",
+    "name": "gps-get",
+    "inParams_tableIdType": "msg",
+    "inParams_key": "payload",
+    "inParams_keyType": "msg",
+    "inParams_keyConstValue": "payload",
+    "outParams1_destOfgottenItemType": "msg",
+    "outParams1_destOfgottenItemConstValue": "payload",
+    "datastoreConfig": "DBIDXXXXXXXXXXXX",
+    "x": 680,
+    "y": 340,
+    "wires": [
+      [
+        "d8c79b25a49c768b",
+        "30779ebac48595e0"
+      ]
+    ]
+  },
+  {
+    "id": "ed0dfa40492f068e",
+    "type": "debug",
+    "z": "21aa420c3286a26f",
+    "name": "LOT",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "mapSetting.markerLocationLong",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1010,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "c37784f6cd16abd7",
+    "type": "debug",
+    "z": "21aa420c3286a26f",
+    "name": "LAT",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "mapSetting.markerLocationLat",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1010,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "05e66c1782b7659d",
+    "type": "inject",
+    "z": "21aa420c3286a26f",
+    "name": "MAP",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 170,
+    "y": 340,
+    "wires": [
+      [
+        "bd13d1c54b5a51c7"
+      ]
+    ]
+  },
+  {
+    "id": "6c37606657866a35",
+    "type": "template",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "field": "payload",
+    "fieldType": "msg",
+    "format": "handlebars",
+    "syntax": "mustache",
+    "template": "{\n    \"label\": \"sensorA\",\n    \"ts\": 1\n}\n",
+    "output": "json",
+    "x": 540,
+    "y": 340,
+    "wires": [
+      [
+        "69e47b0485745072"
+      ]
+    ]
+  },
+  {
+    "id": "b89c0de38b786890",
+    "type": "debug",
+    "z": "21aa420c3286a26f",
+    "name": "MAP HTML",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1030,
+    "y": 480,
+    "wires": []
+  },
+  {
+    "id": "d8c79b25a49c768b",
+    "type": "debug",
+    "z": "21aa420c3286a26f",
+    "name": "DB GET",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 840,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "cf65b95a0dd6452b",
+    "type": "moment",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "topic": "",
+    "input": "mapSetting.markerMessage",
+    "inputType": "msg",
+    "inTz": "Asia/Tokyo",
+    "adjAmount": 0,
+    "adjType": "days",
+    "adjDir": "add",
+    "format": "YYYY-MM-DD HH:mm:ss",
+    "locale": "ja-JP",
+    "output": "time-jp",
+    "outputType": "msg",
+    "outTz": "Asia/Tokyo",
+    "x": 1060,
+    "y": 340,
+    "wires": [
+      [
+        "d0f00ead82a393b3"
+      ]
+    ]
+  },
+  {
+    "id": "bd13d1c54b5a51c7",
+    "type": "change",
+    "z": "21aa420c3286a26f",
+    "name": "LCDP 設定",
+    "rules": [
+      {
+        "t": "set",
+        "p": "PostURL",
+        "pt": "msg",
+        "to": "\"/\" & BasePath & \"/post\"",
+        "tot": "jsonata"
+      },
+      {
+        "t": "set",
+        "p": "headers.Content-Type",
+        "pt": "msg",
+        "to": "text/html; charset=UTF-8",
+        "tot": "str"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 370,
+    "y": 340,
+    "wires": [
+      [
+        "6c37606657866a35"
+      ]
+    ]
+  },
+  {
+    "id": "4fd8237cb0408874",
+    "type": "switch",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "property": "payload.lat",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nempty"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 810,
+    "y": 140,
+    "wires": [
+      [
+        "ba9c4a8df5c26594"
+      ],
+      [
+        "02741ba56f1f5b6c"
+      ]
+    ]
+  },
+  {
+    "id": "0513112887e793af",
+    "type": "debug",
+    "z": "21aa420c3286a26f",
+    "name": "map",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 350,
+    "y": 400,
+    "wires": []
+  },
+  {
+    "id": "7e2b4c2fe82811b7",
+    "type": "debug",
+    "z": "21aa420c3286a26f",
+    "name": "gps save",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 360,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "6d08a03c8ad0629a",
+    "type": "inject",
+    "z": "21aa420c3286a26f",
+    "name": "SAVE-TEST",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "check",
+        "v": "1",
+        "vt": "str"
+      },
+      {
+        "p": "time",
+        "v": "",
+        "vt": "date"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"lat\":\"123.456\",\"lot\":\"12.345\"}",
+    "payloadType": "json",
+    "x": 370,
+    "y": 220,
+    "wires": [
+      [
+        "34bcca1da3770acc"
+      ]
+    ]
+  },
+  {
+    "id": "4e9c0b8e48b8e1af",
+    "type": "debug",
+    "z": "21aa420c3286a26f",
+    "name": "Payload",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 320,
+    "y": 540,
+    "wires": []
+  },
+  {
+    "id": "03190f5d83e73fed",
+    "type": "inject",
+    "z": "21aa420c3286a26f",
+    "name": "JSON TEST",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"lat\":\"123.456\",\"lot\":\"12.345\"}",
+    "payloadType": "json",
+    "x": 150,
+    "y": 540,
+    "wires": [
+      [
+        "4e9c0b8e48b8e1af"
+      ]
+    ]
+  },
+  {
+    "id": "34bcca1da3770acc",
+    "type": "template",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "field": "payload",
+    "fieldType": "msg",
+    "format": "handlebars",
+    "syntax": "mustache",
+    "template": "{\n    \"label\": \"sensorA\",\n    \"ts\": 1,\n    \"time\": {{time}},\n    \"lat\": \"{{payload.lat}}\",\n    \"lot\": \"{{payload.lot}}\"\n}\n",
+    "output": "json",
+    "x": 540,
+    "y": 160,
+    "wires": [
+      [
+        "d209f238bd5d6b03"
+      ]
+    ]
+  },
+  {
+    "id": "ffe9d32e9556a7c8",
+    "type": "debug",
+    "z": "21aa420c3286a26f",
+    "name": "SAVE",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1090,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "d209f238bd5d6b03",
+    "type": "switch",
+    "z": "21aa420c3286a26f",
+    "name": "",
+    "property": "payload.lot",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nempty"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 670,
+    "y": 160,
+    "wires": [
+      [
+        "4fd8237cb0408874"
+      ],
+      [
+        "02741ba56f1f5b6c"
+      ]
+    ]
+  },
+  {
+    "id": "51b8688a417c1d36",
+    "type": "comment",
+    "z": "21aa420c3286a26f",
+    "name": "TEST",
+    "info": "",
+    "x": 70,
+    "y": 500,
+    "wires": []
+  }
+]
