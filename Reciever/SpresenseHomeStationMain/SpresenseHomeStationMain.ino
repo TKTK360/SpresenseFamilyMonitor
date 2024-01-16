@@ -58,6 +58,7 @@ bool g_isTftLight = false;
 int subcore = 1; // Communication with SubCore1
 
 struct MyPacket {
+  int timed;
   float lat;
   float lot;
   int rssi;
@@ -65,15 +66,14 @@ struct MyPacket {
 
 MyPacket packet;
 
+int g_rssi;
+int g_time;
 float g_flat = home_lat;
 float g_flot = home_lot;
-float g_flat2 = 0;
-float g_flot2 = 0;
-float g_flat3 = 0;
-float g_flot3 = 0;
-float g_flat4 = 0;
-float g_flot4 = 0;
-int g_rssi;
+
+int   g_artime[3];
+float g_arflat[3];
+float g_arflot[3];
 
 int g_imgType = 0;
 int g_cnt_gps = 0;
@@ -84,7 +84,7 @@ int g_cnt_send = 0;
 //-------------------------------------------------------------
 //GpsDataFunction
 //-------------------------------------------------------------
-int GpsDataFunction(float flat, float flot, int rssi)
+int GpsDataFunction(int timed, float flat, float flot, int rssi)
 {
   int ret = 0;
   // 自宅近く
@@ -108,25 +108,16 @@ int GpsDataFunction(float flat, float flot, int rssi)
 
   // Now Parameter
   g_rssi = rssi;
+  g_time = timed;
   g_flat = flat;
   g_flot = flot;
 
-  switch(g_cnt_gps) {
-    case 2:
-      g_flat2 = flat;
-      g_flot2 = flot;
-      break;
-    case 3:
-      g_flat3 = flat;
-      g_flot3 = flot;
-      break;
-    case 4:
-      g_flat4 = flat;
-      g_flot4 = flot;
-      break;
-  }
+  int updateIndex = g_cnt_gps-2;
+  g_artime[updateIndex] = timed;
+  g_arflat[updateIndex] = flat;
+  g_arflot[updateIndex] = flot;
   
-  MPLog("Gps:%d, %f, %f\n", g_rssi, g_flat, g_flot);  
+  MPLog("Gps:%d,%d,%f,%f\n", g_rssi, g_time, g_flat, g_flot);  
 
   return ret;
 }
@@ -146,17 +137,17 @@ bool DisplayImageFunction(int mode, bool isForce)
   switch(g_imgType) {
     case IMG_TYPE_HOME:
       tft.drawRGBBitmap(170, 73, IMG_HOME, 150, 137); 
-      //Serial.println("Draw IMG_HOME");
+      //MPLog("Draw IMG_HOME\n");
       break;
 
     case IMG_TYPE_SCHOOL:
       tft.drawRGBBitmap(170, 94, IMG_SCHOOL, 150, 95); 
-      //Serial.println("Draw IMG_SCHOOL");
+      //MPLog("Draw IMG_SCHOOL\n");
       break;
 
     case IMG_TYPE_MOVE:
       tft.drawRGBBitmap(170, 76, IMG_WALK, 150, 132);
-      //Serial.println("Draw IMG_TYPE_MOVE");
+      //MPLog("Draw IMG_TYPE_MOVE\n");
       break;
   }
   yield();
@@ -174,14 +165,17 @@ void DisplayTextFunction()
   tft.setTextSize(2);
 
   // rssi
-  tft.setCursor(10, 18);
-  tft.print("RSSI:");
-  tft.setCursor(97, 18);
-  tft.print(g_rssi);
+  tft.setCursor(10, 18);   tft.print("RSSI:");
+  tft.setCursor(80, 18);   tft.print(g_rssi);
+
+  tft.setCursor(138, 18);  tft.print(g_time / 10000);
+  tft.setCursor(168, 18);  tft.print(":");
+  tft.setCursor(183, 18);  tft.print((g_time % 10000) / 100);
+  tft.setCursor(208, 18);  tft.print(".");
+  tft.setCursor(228, 18);  tft.print(g_time % 100);
 
   // lat, lot
   int yPos = 18 + 35;
-  int i = 0;
   char buffer[10];
 
   tft.setCursor(10, yPos);
@@ -191,25 +185,26 @@ void DisplayTextFunction()
   tft.print(",");
   tft.setCursor(138, yPos);
   snprintf(buffer, sizeof(buffer), "%f", g_flot);
-  yPos += 45;
   tft.print(buffer);
+  yPos += 45;
   
   tft.setTextSize(1);
-  while (i++ < 3)
-  {
-    tft.setCursor(10, yPos);
-    if (i == 1)      snprintf(buffer, sizeof(buffer), "%f", g_flat2);
-    else if (i == 2) snprintf(buffer, sizeof(buffer), "%f", g_flat3);
-    else if (i == 3) snprintf(buffer, sizeof(buffer), "%f", g_flat4);
+
+  int i = 0;
+  while (i++ < 3){
+    tft.setCursor(12, yPos);
+    snprintf(buffer, sizeof(buffer), "%d", g_artime[i - 1]);
+    tft.print(buffer);
+
+    tft.setCursor(57, yPos);
+    snprintf(buffer, sizeof(buffer), "%f", g_arflat[i - 1]);
     tft.print(buffer);
   
-    tft.setCursor(70, yPos);
+    tft.setCursor(110, yPos);
     tft.print(",");
     
-    tft.setCursor(90, yPos);
-    if (i == 1)      snprintf(buffer, sizeof(buffer), "%f", g_flot2);
-    else if (i == 2) snprintf(buffer, sizeof(buffer), "%f", g_flot3);
-    else if (i == 3) snprintf(buffer, sizeof(buffer), "%f", g_flot4);
+    tft.setCursor(120, yPos);
+    snprintf(buffer, sizeof(buffer), "%f", g_arflot[i - 1]);
     tft.print(buffer);
     
     yPos += 25;
@@ -237,13 +232,13 @@ void DispRefresh()
 void DispLight(bool isTftLight)
 {
   if (isTftLight) {
-    Serial.println("light on");
+    MPLog("light on\n");
     //digitalWrite(TFT_BACKLIGHT_PIN,HIGH);
 
     DispRefresh();
   }
   else {
-    Serial.println("light off");
+    MPLog("light off\n");
     //digitalWrite(TFT_BACKLIGHT_PIN,LOW);
   }
 }
@@ -267,10 +262,9 @@ void SetupDisplay()
 void SendGps(float lat, float lot)
 {
   if (g_rssi == 0 || lat < 1 || lot < 1) {
-    Serial.println("NO GPS");
+    MPLog("NO GPS\n");
     return;
   }
-  Serial.println("START SendGps.");
 
   // Make a HTTP request:
   char buffer[35];
@@ -279,7 +273,7 @@ void SendGps(float lat, float lot)
   Serial.println(buffer);
   SerialAT.println(buffer);
 
-  Serial.println("END SendGps.");
+  MPLog("SendGps\n");
 }
 
 
@@ -360,12 +354,12 @@ void setup()
   
   //------------------------------------------
   // Button
-  Serial.println("Button");
+  MPLog("Button\n");
   //pinMode(BTN_PIN, INPUT);
 
   //------------------------------------------
   // TFT
-  Serial.println("Tft");
+  MPLog("Tft\n");
   SetupDisplay();
   DispLight(g_isTftLight);
 
@@ -380,7 +374,7 @@ void setup()
     printf("MP.begin error = %d\n", ret);
   }
 
-  Serial.println("=== START ===");
+  MPLog("=== START ===\n");
 }
 
 
@@ -398,7 +392,7 @@ void loop()
   int8_t   rcvid;  
   int ret = MP.Recv(&rcvid, &ppacket, subcore);
   if (ret >= 0) {
-    ret = GpsDataFunction(ppacket->lat, ppacket->lot, ppacket->rssi);
+    ret = GpsDataFunction(ppacket->timed, ppacket->lat, ppacket->lot, ppacket->rssi);
     if (ret > 0) {
       g_cnt_gps++;
       if (g_cnt_gps > 4) {

@@ -20,6 +20,7 @@ enum LoopState {
 // GNSS
 SpGnss Gnss;                            // SpGnss object
 
+String g_time;
 String g_lat;
 String g_lot;
 
@@ -169,25 +170,23 @@ void floatArrayToBytes(float* values, uint8_t* bytes)
 
 void floatValuesToCommaString(float* values, char* resultString)
 {
-  String floatStrings[2];
-  for (int i = 0; i < 2; ++i) {
+  String floatStrings[3];
+  for (int i = 0; i < 3; ++i) {
     floatStrings[i] = String(values[i], 5);  // Adjust precision as needed
   }
 
-  sprintf(resultString, "%s,%s\0", floatStrings[0].c_str(), floatStrings[1].c_str());
+  sprintf(resultString, "%s,%s,%s\0", floatStrings[0].c_str(), floatStrings[1].c_str(), floatStrings[2].c_str());
 }
 
 
 //-------------------------------------------------------------
 //SendGnssLoraData
 //-------------------------------------------------------------
-void SendGnssLoraData(String lat, String lot)
+void SendGnssLoraData(String time, String lat, String lot)
 {
-  float values[2] = { ConvertGps(lat), ConvertGps(lot)};
+  float values[3] = { atof(time.c_str()) + 90000, ConvertGps(lat), ConvertGps(lot)};
   char resultString[50];  // Adjust the size as needed
-  uint8_t byteData[2 * sizeof(float)];  
 
-  floatArrayToBytes(values, byteData);
   floatValuesToCommaString(values, resultString);
   Serial.print("result = ");
   Serial.println(resultString);
@@ -292,7 +291,7 @@ void loop()
       Serial.print(NmeaString);
 
       // 分割数 = 分割処理(文字列, 区切り文字, 配列) 
-      String cmds[15] = {"\0"}; // 分割された文字列を格納する配列 
+      String cmds[25] = {"\0"}; // 分割された文字列を格納する配列 
       int index = StrSplit(NmeaString, ',', cmds);
 
       // 結果表示
@@ -300,6 +299,7 @@ void loop()
       //  Serial.println(cmds[i]);
       //}
       if (4 < index) {
+        g_time = cmds[1];
         g_lat = cmds[2];
         g_lot = cmds[4];
 
@@ -307,7 +307,7 @@ void loop()
             strlen(g_lot.c_str()) != 0) {
           //Serial.print("lat=");   Serial.println(g_lat);
           //Serial.print("lot=");   Serial.println(g_lot);
-          SendGnssLoraData(g_lat, g_lot);
+          SendGnssLoraData(g_time, g_lat, g_lot);
           delay(SEND_INTERVAL * 1000);
           return;
         }

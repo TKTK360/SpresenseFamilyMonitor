@@ -33,11 +33,13 @@ struct LoRaConfigItem_t config = {
   0x00      // target_channel 0
 };
 
+int g_rssi;
+int g_time;
 float g_flat;
 float g_flot;
-int g_rssi;
 
 struct MyPacket {
+  int timed;
   float lat;
   float lot;
   int rssi;
@@ -96,9 +98,11 @@ int GpsDataFunction(String data)
   }
 
   // 結果表示
-  String now_lat = cmds[0];
-  String now_lot = cmds[1];
+  String now_time = cmds[0];
+  String now_lat = cmds[1];
+  String now_lot = cmds[2];
 
+  g_time = atoi(now_time.c_str());
   g_flat = atof(now_lat.c_str());
   g_flot = atof(now_lot.c_str());
 
@@ -137,8 +141,9 @@ bool LoraFunction()
 //-------------------------------------------------------------
 //SendGps
 //-------------------------------------------------------------
-void SendGps(float lat, float lot, int rssi)
+void SendGps(int timed, float lat, float lot, int rssi)
 {
+  packet.timed = timed;
   packet.lat = lat;
   packet.lot = lot;
   packet.rssi = rssi;
@@ -179,7 +184,7 @@ void setup()
   while (1) {
     if (LoraFunction()) {
       // Send Gps Data
-      SendGps(g_flat, g_flot, g_rssi);  
+      SendGps(g_time, g_flat, g_flot, g_rssi);  
     }
     delay(100);
   }
